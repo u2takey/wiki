@@ -26,6 +26,7 @@ import (
 var (
 	pagePath = "wiki_pages"
 	wikiGit  = "git@github.com:u2takey/gptwiki-pages.git"
+	Version  = "0.1.0"
 )
 
 func main() {
@@ -102,7 +103,7 @@ func main() {
 			}
 			return nil
 		},
-		Version: "0.1",
+		Version: Version,
 	}
 
 	_ = app.Run(os.Args)
@@ -138,7 +139,7 @@ func SavePage(source, pages, folder, command, wiki, branch string) error {
 	//}
 	commandPath := GetWikiPathForCommand(pages, folder, command)
 	if err := ioutil.WriteFile(commandPath,
-		[]byte(fmt.Sprintf("#%s \n## chatgpt \n%s", command, wiki)), 0o666); err != nil {
+		[]byte(fmt.Sprintf("# %s \n## chatgpt \n%s", command, wiki)), 0o666); err != nil {
 		return err
 	}
 	//err = w.AddGlob("*")
@@ -225,15 +226,21 @@ func Init() *cli.Command {
 			&cli.StringFlag{Name: "chatgpt-key"},
 			&cli.StringFlag{Name: "folder", Value: "common"},
 			&cli.StringFlag{Name: "lang", Value: "zh"},
-			&cli.StringFlag{Name: "prompt", Value: "请详细解释命令：%s"},
+			&cli.StringFlag{Name: "prompt", Value: ""},
 		},
 		Action: func(c *cli.Context) error {
 			key := c.String("chatgpt-key")
 			folder := c.String("folder")
 			lang := c.String("lang")
 			prompt := c.String("prompt")
-			if len(lang) == 0 {
-				prompt = "Please explain the command in detail: %s"
+			if len(lang) > 0 {
+				if lang == "zh" && prompt == "" {
+					prompt = "请详细解释命令：%s"
+				}
+			} else {
+				if prompt == "" {
+					prompt = "Please explain the command in detail: %s"
+				}
 			}
 			config := Config{
 				GptKey:   key,

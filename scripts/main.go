@@ -54,7 +54,7 @@ func Init() *cli.Command {
 			&cli.StringFlag{Name: "chatgpt-key"},
 			&cli.StringFlag{Name: "folder", Value: "common"},
 			&cli.StringFlag{Name: "lang", Value: "zh"},
-			&cli.StringFlag{Name: "prompt", Value: "请详细解释命令：%s"},
+			&cli.StringFlag{Name: "prompt", Value: ""},
 			&cli.BoolFlag{Name: "override", Value: false},
 			&cli.IntFlag{Name: "worker", Value: 10},
 		},
@@ -67,8 +67,13 @@ func Init() *cli.Command {
 			prompt := c.String("prompt")
 			if len(lang) > 0 {
 				pages += "." + lang
+				if lang == "zh" && prompt == "" {
+					prompt = "请详细解释命令：%s"
+				}
 			} else {
-				prompt = "Please explain the command in detail: %s"
+				if prompt == "" {
+					prompt = "Please explain the command in detail: %s"
+				}
 			}
 
 			fmt.Println("start", pages, folder)
